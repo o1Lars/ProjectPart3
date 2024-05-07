@@ -1,9 +1,10 @@
 import bitIO
 import sys
 from PQHeap import insert, extractMin
+from DictBinTree import DictBinTree
 
-class Encode:
-    def __init__(self):
+class MyEncode:
+    def __init__(self, infile):
         self.infile = infile
         
     # trin 1 - hyppighedstabel. Filen skal læses 1 byte ad gangen.
@@ -16,17 +17,21 @@ class Encode:
             byte = self.infile.read(1)
         
         #Laver hyppighedstabel med 256 elementer
-        count_sort_table = [0] * 256
-        return count_sort_table
+        frequency_table = [0] * 256
 
-
-    def huffman_algo(self, count_sort_table):
+        #tilføjer bytes fra list_of_bytes til vores count_sort_table
+        for byte in list_of_bytes:
+            frequency_table[byte] += 1
+        
+        return frequency_table
+    
+    def huffman_tree_creator(self, frequency_table):
+        #Initierer prioritetskø 
         priorityQ = []
-        #For alle bytes, også dem med 0
         for i in range(256):
-            insert(priorityQ, (count_sort_table[i], i)) #Indsætter for hyppighed og byteværdi
+            insert(priorityQ, frequency_table[i]) #Indsætter for hyppighed
 
-        #Huffman algo
+        #Huffman_tree_creator
 
         for i in range(len(priorityQ) - 1):
             #Extracter de to knuder med lowest frequency
@@ -34,24 +39,21 @@ class Encode:
             byte1 = i #Unpacker return value
             i += 1
             freq2 = extractMin(priorityQ)
-            byte2 = i 
             
-
-            #Laver nye knuder
             new_node = freq1 + freq2
             insert(priorityQ, new_node)
-            root = priorityQ[0]
+            root = priorityQ[0] 
 
-        return root
+        return priorityQ
 
-infile = open(sys.argv[1], 'rb')
-outfile = open(sys.argv[2], 'wb')
-bitstreamin = bitIO.BitReader(infile)
-bitstreamout = bitIO.BitWriter(outfile)
-i = bitstreamin.readint32bits()
-print(i)
-bitstreamout.writeint32bits(i)
+    def huffman_code(self, huffman_tree):
+        pass
 
-encoder = Encode()
-count_table = encoder.count_sort()
-huffman_tree = encoder.huffman_algo(count_table)
+class SymbolHolder:
+    def __init__(self, symbol=None, single_frequency=0):
+        self.freq = single_frequency
+        self.symbol = symbol
+
+
+
+        

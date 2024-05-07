@@ -1,5 +1,8 @@
 import bitIO
 import sys
+from PQHeap import insert, extractMin
+from Encode import MyEncode
+
 
 # Test program to:
 #
