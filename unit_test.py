@@ -1,8 +1,8 @@
 import unittest
-from Encode import MyEncode
+from Encode import EncodeFile
 from Encode import SymbolHolder
 
-class TestMyEncode(unittest.TestCase):
+class TestEncodeFile(unittest.TestCase):
     def test_count_sort(self):
         sample_bytes = b'\x00\x01\x02\x02\x03\x03\x03\x04\x05'
         with open('sample_file.bin', 'wb') as f:
@@ -10,8 +10,8 @@ class TestMyEncode(unittest.TestCase):
 
         # Open the sample file for reading in binary mode
         with open('sample_file.bin', 'rb') as f:
-            # Create an instance of MyEncode
-            your_instance = MyEncode(f)
+            # Create an instance of EncodeFile
+            your_instance = EncodeFile(f)
 
             # Call the count_sort method
             actual_symbol_holder = your_instance.count_sort()
@@ -43,8 +43,8 @@ class TestMyEncode(unittest.TestCase):
 
         # Open the sample file for reading in binary mode
         with open('sample_file.bin', 'rb') as f:
-            # Create an instance of MyEncode
-            your_instance = MyEncode(f)
+            # Create an instance of EncodeFile
+            your_instance = EncodeFile(f)
 
             # Call the count_sort method
             count_sort_table = your_instance.count_sort()

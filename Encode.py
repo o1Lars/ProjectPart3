@@ -34,19 +34,15 @@ class EncodeFile:
 
     # trin 1 - hyppighedstabel. Filen skal læses 1 byte ad gangen.
     def count_sort(self):
-        # først læs filen som bytes
-        list_of_bytes = []
-        byte = self.infile.read(1)
-        while byte:
-            list_of_bytes.append(byte[0])  # Laver bytestring om til heltal
-            byte = self.infile.read(1)
+        """Scans a file and creates a  frequency table of individual bytes from the file (0-255)"""
 
-        # Laver hyppighedstabel med 256 elementer
         frequency_table = [0] * 256
 
-        # tilføjer bytes fra list_of_bytes til vores count_sort_table
-        for byte in list_of_bytes:
-            frequency_table[byte] += 1
+        # Read file byte by byte
+        byte = self.infile.read(1)
+        while byte:
+            frequency_table[byte[0]] += 1   # Increase frequency of byte +1
+            byte = self.infile.read(1)      # Read next byte
 
         return frequency_table
 
