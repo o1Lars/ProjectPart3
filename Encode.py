@@ -27,12 +27,14 @@ import sys
 from PQHeap import insert, extractMin
 from DictBinTree import DictBinTree
 from Element import Element
-
+from bitIO import BitWriter
 
 class EncodeFile:
-    def __init__(self, infile):
+    def __init__(self, infile, outfile):
         self.infile = infile
+        self.outfile = outfile
         self.frequency_table = self.count_sort()
+
 
     # trin 1 - hyppighedstabel. Filen skal læses 1 byte ad gangen.
     def count_sort(self):
@@ -72,6 +74,13 @@ class EncodeFile:
     def huffman_code(self, huffman_tree):
         pass
 
+    def write_frequency_table(self):
+        """Writes requency table to output file."""
+        with open(self.outfile, 'wb') as f:
+            bit_writer = BitWriter(f)
+            for frequency in self.frequency_table:
+                bit_writer.writeint32bits(frequency)
+            bit_writer.close()
 
 class SymbolHolder:
     def __init__(self, symbol=None, single_frequency=0):
@@ -82,4 +91,5 @@ class SymbolHolder:
 if __name__ == 'main':
     input_file = 'placeHolder'  # TODO
     output_file = 'placeHolder'  # TODO
-    EncodeFile(input_file, output_file)
+    encoder = EncodeFile(input_file, output_file)
+    encoder.write_frequency_table()
