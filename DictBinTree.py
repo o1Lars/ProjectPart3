@@ -126,7 +126,7 @@ class DictBinTree:
             self._orderedTraversal(node.right, mylist)
 
 
-class   BinNode:
+class BinNode:
     """Creates a node/subtree with a key and the left and right child of the node"""
     def __init__(self, key: int=None):
         """

@@ -26,6 +26,7 @@ import bitIO
 import sys
 from PQHeap import insert, extractMin
 from DictBinTree import DictBinTree
+from Element import Element
 
 
 class EncodeFile:

@@ -140,6 +140,7 @@ def insert(priority_q: List[int], num: int) -> List[int]:
     :return: None:
     """
     priority_q.append(num)
+
     i = len(priority_q) - 1
     while i > 0 and priority_q[parent(i)] > priority_q[i]:
         parent_index = parent(i)
