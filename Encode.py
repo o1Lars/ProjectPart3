@@ -32,6 +32,7 @@ from Element import Element
 class EncodeFile:
     def __init__(self, infile):
         self.infile = infile
+        self.frequency_table = self.count_sort()
 
     # trin 1 - hyppighedstabel. Filen skal læses 1 byte ad gangen.
     def count_sort(self):

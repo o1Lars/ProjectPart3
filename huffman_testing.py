@@ -39,7 +39,7 @@ def huffman_coding(C: list) -> int:
     return PQHeap.extractMin(Q)
 
 code = huffman_coding(elements)
-print(code.data.left.key)
+print(code)
 
 def _orderedTraversal(node, mylist):
     """"""
