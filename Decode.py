@@ -20,6 +20,43 @@ Lars Mogensen
 lmoge23@student.sdu.dk
 
 """
+from bitIO import BitReader
+
+class Decode():
+    def __init__(self, infile, outfile):
+        self.infile = infile
+        self.outfile = outfile
+        self.frequency_table = []
+        self.huffman_tree = None
+    
+    def scan_frequency_table(self):
+        with open(self.infile, 'rb') as f:
+            bit_reader = BitReader(f)
+
+            for i in range(256):
+                frequency = bit_reader.readint32bits()
+                self.frequency_table.append(frequency)
+            bit_reader.close()
+    
+    def construct_huffman_tree(self):
+        pass
+
+    def decode_encoded_data(self):
+        pass
+
+    def do_decode(self):
+        self.scan_frequency_table()
+        self.construct_huffman_tree()
+        self.decode_encoded_data()
+
+if __name__ == "__main__":
+    input_file = "Placeholder"
+    output_file = "placeholder"
+    decoder = Decode(input_file, output_file)
+    decoder.do_decode()
+
+        
+
 
 # Create class for decoding
 # readint32bits()

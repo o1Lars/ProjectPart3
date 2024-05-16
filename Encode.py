@@ -38,7 +38,7 @@ class EncodeFile:
 
     # trin 1 - hyppighedstabel. Filen skal læses 1 byte ad gangen.
     def count_sort(self):
-        """Scans a file and creates a  frequency table of individual bytes from the file (0-255)"""
+        """Scans a file and creates a  frequency table of individual bytes from the file (index 0-255)"""
 
         frequency_table = [0] * 256
 
@@ -47,7 +47,7 @@ class EncodeFile:
         while byte:
             frequency_table[byte[0]] += 1   # Increase frequency of byte +1
             byte = self.infile.read(1)      # Read next byte
-
+    
         return frequency_table
 
     def huffman_tree_creator(self, frequency_table):
