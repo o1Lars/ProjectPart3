@@ -20,9 +20,17 @@ Lars Mogensen
 lmoge23@student.sdu.dk
 
 """
+import sys
 from PQHeap import insert, extractMin
 from bitIO import BitReader, BitWriter
 from DictBinTree import DictBinTree
+
+class HuffmanNode:
+    def __init__(self, symbol=None, frequency=0):
+        self.symbol = symbol
+        self.frequency = frequency
+        self.left = None
+        self.right = None
 
 class Decode():
     def __init__(self, infile, outfile):
@@ -68,7 +76,7 @@ class Decode():
         self.huffman_tree_root = PriorityQ[0]
 
     def decode_encoded_data(self):
-        bit_reader = BitReader(f)
+        bit_reader = BitReader(open(self.infile, 'rb'))
         bit_writer = BitWriter(open(self.outfile, 'wb'))
         current_node = self.huffman_tree_root
 
@@ -84,6 +92,10 @@ class Decode():
                 current_node = current_node.left
             else:
                 current_node = current_node.right
+
+            #Checker hvis current_node er None:
+            if current_node is None:
+                raise ValueError("Invalid encoded data or huffman tree construction")
             
             ##hvis vi har nået et leaf, så gemmer vi current_node
             if current_node.left is None and current_node.right is None:
@@ -99,17 +111,15 @@ class Decode():
         self.scan_frequency_table()
         self.construct_huffman_tree()
         self.decode_encoded_data()
-    
-class HuffmanNode:
-    def __init__(self, symbol, frequency):
-        self.symbol = symbol
-        self.frequency = frequency
-        self.left = None
-        self.right = None
 
 if __name__ == "__main__":
-    input_file = "Placeholder"
-    output_file = "placeholder"
+    if len(sys.argv) != 3:
+        print("Usage: python Decode.py <input_file> <output_file>")
+        sys.exit(1)
+
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
+    
     decoder = Decode(input_file, output_file)
     decoder.do_decode()
 
