@@ -20,14 +20,17 @@ Lars Mogensen
 lmoge23@student.sdu.dk
 
 """
-from bitIO import BitReader
+from PQHeap import insert, extractMin
+from bitIO import BitReader, BitWriter
+from DictBinTree import DictBinTree
 
 class Decode():
     def __init__(self, infile, outfile):
         self.infile = infile
         self.outfile = outfile
         self.frequency_table = []
-        self.huffman_tree = None
+        self.huffman_tree_root = None
+        self.decoded_data = ""
     
     def scan_frequency_table(self):
         with open(self.infile, 'rb') as f:
@@ -39,15 +42,70 @@ class Decode():
             bit_reader.close()
     
     def construct_huffman_tree(self):
-        pass
+        PriorityQ = []
+
+        #Her laver vi leaf nodes som vi sætter inde i PriorityQ
+        for symbol, frequency in enumerate(self.frequency_table):
+            if frequency > 0:
+                node = HuffmanNode(symbol, frequency)
+                insert(PriorityQ, node)
+
+        #Nu bygger vi huffman træet
+        while len(PriorityQ) > 1:
+            left_child = extractMin(PriorityQ)
+            right_child = extractMin(PriorityQ)
+            #Laver parent node ## ER I TVIVL OM DEN SKAL HAVE SYMBOL MED SIG??? se python kode her: https://www.geeksforgeeks.org/huffman-decoding/
+            parent_frequency = left_child.frequency + right_child.frequency
+            parent_node = HuffmanNode(None, parent_frequency)
+            parent_node.left = left_child
+            parent_node.right = right_child
+
+            #Indsætter parent node tilbage i PriorityQ
+
+            insert(PriorityQ, parent_node)
+        
+        #Laver rod til huffman træet med den sidste værdi
+        self.huffman_tree_root = PriorityQ[0]
 
     def decode_encoded_data(self):
-        pass
+        bit_reader = BitReader(f)
+        bit_writer = BitWriter(open(self.outfile, 'wb'))
+        current_node = self.huffman_tree_root
+
+        #OrderedTraversal gennemføres nu på træet
+        while True:
+            bit = bit_reader.readbit()
+
+            if bit is None:
+                break
+
+            ##Bestem om vi skal til venstre eller højre i træet
+            if bit == 0:
+                current_node = current_node.left
+            else:
+                current_node = current_node.right
+            
+            ##hvis vi har nået et leaf, så gemmer vi current_node
+            if current_node.left is None and current_node.right is None:
+                #skriver current til output fil
+                bit_writer.writebit(1)
+                bit_writer.writeint32bits(current_node.symbol)
+                # genstarter og kør klar til næste iteration
+                current_node = self.huffman_tree_root
+        
+        bit_writer.close()
 
     def do_decode(self):
         self.scan_frequency_table()
         self.construct_huffman_tree()
         self.decode_encoded_data()
+    
+class HuffmanNode:
+    def __init__(self, symbol, frequency):
+        self.symbol = symbol
+        self.frequency = frequency
+        self.left = None
+        self.right = None
 
 if __name__ == "__main__":
     input_file = "Placeholder"
