@@ -33,8 +33,6 @@ class DictBinTree:
         """
         self.root = None
 
-        #for key in keys:
-        #self.root = DictBinTree.insert(self.root, key)
 
     # Public methods for the binary search tree
     def search(self, k: int) -> bool:
@@ -139,8 +137,4 @@ class BinNode:
         self.left = None
         self.right = None
 
-    #skal bruges til at repræsentere knuder i træer
-    #du skal ikke bruge array struktur
-    #skal indeholde to andre BinNodes (knudens venstre og højre børn), med værdi None hvis barnet ikke findes.
-    # skal også indeholde nøgle K, men ikke nødvendigt med forælder i dette projekt
-    #
+

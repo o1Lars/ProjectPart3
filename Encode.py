@@ -24,16 +24,23 @@ lmoge23@student.sdu.dk
 
 import bitIO
 import sys
+<<<<<<< Updated upstream
 from PQHeap import insert, extractMin
 from DictBinTree import DictBinTree
 from Element import Element
 from bitIO import BitWriter
+=======
+import HuffmanTree
+
+>>>>>>> Stashed changes
 
 class EncodeFile:
     def __init__(self, infile, outfile):
         self.infile = infile
         self.outfile = outfile
         self.frequency_table = self.count_sort()
+        self.huffman_tree = HuffmanTree.HuffmanTreeCreator(self.frequency_table)
+        self.huffman_codes_list = self.huffman_tree.huffman_codes
 
 
     # trin 1 - hyppighedstabel. Filen skal læses 1 byte ad gangen.
@@ -42,37 +49,25 @@ class EncodeFile:
 
         frequency_table = [0] * 256
 
+<<<<<<< Updated upstream
         # Read file byte by byte
         byte = self.infile.read(1)
         while byte:
             frequency_table[byte[0]] += 1   # Increase frequency of byte +1
             byte = self.infile.read(1)      # Read next byte
     
+=======
+        with open(self.infile, 'rb') as file:
+            # Read file byte by byte
+            byte = file.read(1)
+            while byte:
+                frequency_table[byte[0]] += 1  # Increase frequency of byte +1
+                byte = file.read(1)  # Read next byte
+
+>>>>>>> Stashed changes
         return frequency_table
 
-    def huffman_tree_creator(self, frequency_table):
-        # Initierer prioritetskø
-        priorityQ = []
-        for i in range(256):
-            insert(priorityQ, frequency_table[i])  # Indsætter for hyppighed
 
-        # Huffman_tree_creator
-
-        for i in range(len(priorityQ) - 1):
-            # Extracter de to knuder med lowest frequency
-            freq1 = extractMin(priorityQ)
-            byte1 = i  # Unpacker return value
-            i += 1
-            freq2 = extractMin(priorityQ)
-
-            new_node = freq1 + freq2
-            insert(priorityQ, new_node)
-            root = priorityQ[0]
-
-        return priorityQ
-
-    def huffman_code(self, huffman_tree):
-        pass
 
     def write_frequency_table(self):
         """Writes requency table to output file."""
