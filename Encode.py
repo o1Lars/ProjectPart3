@@ -22,17 +22,9 @@ lmoge23@student.sdu.dk
 
 """
 
-import bitIO
-import sys
-<<<<<<< Updated upstream
-from PQHeap import insert, extractMin
-from DictBinTree import DictBinTree
-from Element import Element
 from bitIO import BitWriter
-=======
 import HuffmanTree
 
->>>>>>> Stashed changes
 
 class EncodeFile:
     def __init__(self, infile, outfile):
@@ -45,18 +37,10 @@ class EncodeFile:
 
     # trin 1 - hyppighedstabel. Filen skal læses 1 byte ad gangen.
     def count_sort(self):
-        """Scans a file and creates a  frequency table of individual bytes from the file (index 0-255)"""
+        """Scans a file and creates a  frequency table of individual bytes from the file (0-255)"""
 
         frequency_table = [0] * 256
 
-<<<<<<< Updated upstream
-        # Read file byte by byte
-        byte = self.infile.read(1)
-        while byte:
-            frequency_table[byte[0]] += 1   # Increase frequency of byte +1
-            byte = self.infile.read(1)      # Read next byte
-    
-=======
         with open(self.infile, 'rb') as file:
             # Read file byte by byte
             byte = file.read(1)
@@ -64,10 +48,7 @@ class EncodeFile:
                 frequency_table[byte[0]] += 1  # Increase frequency of byte +1
                 byte = file.read(1)  # Read next byte
 
->>>>>>> Stashed changes
         return frequency_table
-
-
 
     def write_frequency_table(self):
         """Writes requency table to output file."""
