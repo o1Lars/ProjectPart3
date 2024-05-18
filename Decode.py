@@ -24,6 +24,7 @@ import sys
 from PQHeap import insert, extractMin
 from bitIO import BitReader, BitWriter
 from DictBinTree import DictBinTree
+from HuffmanTree import HuffmanTreeCreator
 
 class HuffmanNode:
     def __init__(self, symbol=None, frequency=0):
@@ -39,6 +40,7 @@ class Decode():
         self.frequency_table = []
         self.huffman_tree_root = None
         self.decoded_data = ""
+        self.huffman_tree_creator = None
     
     def scan_frequency_table(self):
         with open(self.infile, 'rb') as f:
@@ -48,37 +50,42 @@ class Decode():
                 frequency = bit_reader.readint32bits()
                 self.frequency_table.append(frequency)
             bit_reader.close()
+
+            for i, freq in enumerate(self.frequency_table):
+                print(f"Byte {i}: Frequency {freq}")
     
     def construct_huffman_tree(self):
-        PriorityQ = []
+        self.huffman_tree_creator = HuffmanTreeCreator(self.frequency_table)
+        # PriorityQ = []
 
-        #Her laver vi leaf nodes som vi sætter inde i PriorityQ
-        for symbol, frequency in enumerate(self.frequency_table):
-            if frequency > 0:
-                node = HuffmanNode(symbol, frequency)
-                insert(PriorityQ, node)
+        # #Her laver vi leaf nodes som vi sætter inde i PriorityQ
+        # for symbol, frequency in enumerate(self.frequency_table):
+        #     if frequency > 0:
+        #         node = HuffmanNode(symbol, frequency)
+        #         insert(PriorityQ, node)
 
-        #Nu bygger vi huffman træet
-        while len(PriorityQ) > 1:
-            left_child = extractMin(PriorityQ)
-            right_child = extractMin(PriorityQ)
-            #Laver parent node ## ER I TVIVL OM DEN SKAL HAVE SYMBOL MED SIG??? se python kode her: https://www.geeksforgeeks.org/huffman-decoding/
-            parent_frequency = left_child.frequency + right_child.frequency
-            parent_node = HuffmanNode(None, parent_frequency)
-            parent_node.left = left_child
-            parent_node.right = right_child
+        # #Nu bygger vi huffman træet
+        # while len(PriorityQ) > 1:
+        #     left_child = extractMin(PriorityQ)
+        #     right_child = extractMin(PriorityQ)
+        #     #Laver parent node ## ER I TVIVL OM DEN SKAL HAVE SYMBOL MED SIG??? se python kode her: https://www.geeksforgeeks.org/huffman-decoding/
+        #     parent_frequency = left_child.frequency + right_child.frequency
+        #     parent_node = HuffmanNode(None, parent_frequency)
+        #     parent_node.left = left_child
+        #     parent_node.right = right_child
 
-            #Indsætter parent node tilbage i PriorityQ
+        #     #Indsætter parent node tilbage i PriorityQ
 
-            insert(PriorityQ, parent_node)
+        #     insert(PriorityQ, parent_node)
         
-        #Laver rod til huffman træet med den sidste værdi
-        self.huffman_tree_root = PriorityQ[0]
+        # #Laver rod til huffman træet med den sidste værdi
+        # self.huffman_tree_root = PriorityQ[0]
 
     def decode_encoded_data(self):
         bit_reader = BitReader(open(self.infile, 'rb'))
         output_file = open(self.outfile, 'wb')
-        current_node = self.huffman_tree_root
+        root_node = self.huffman_tree_creator.huffman_tree.data
+        current_node = root_node
         total_bytes = sum(self.frequency_table)
         bytes_decoded = 0
 
@@ -92,18 +99,21 @@ class Decode():
                 break
 
             if bit == 0:
-                current_node = current_node.left
+                current_node = current_node.left.data
             else:
-                current_node = current_node.right
+                current_node = current_node.right.data
             
             if current_node is None:
                 raise ValueError("Invalid encoded data or huffman tree")
             
+            print(f"Read bit: {bit}, traversing to node: {current_node.root if current_node else 'None'}")
+            
             if current_node.left is None and current_node.right is None:
+                print(f"Writing symbol: {current_node.root}")
                 # Skriver en hel byte
-                output_file.write(bytes([current_node.symbol]))
+                output_file.write(bytes([current_node.root]))
                 bytes_decoded += 1
-                current_node = self.huffman_tree_root
+                current_node = self.huffman_tree_creator.huffman_tree.data
             
         output_file.close()
         bit_reader.close()

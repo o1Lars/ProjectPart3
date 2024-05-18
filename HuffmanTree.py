@@ -66,6 +66,7 @@ class HuffmanTreeCreator():
             z.data.right = y
             z.key = x.key + y.key
             PQHeap.insert(Q, z)
+
         return PQHeap.extractMin(Q)
 
     def _create_huffman_codes_list(self):
