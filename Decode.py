@@ -77,35 +77,36 @@ class Decode():
 
     def decode_encoded_data(self):
         bit_reader = BitReader(open(self.infile, 'rb'))
-        bit_writer = BitWriter(open(self.outfile, 'wb'))
+        output_file = open(self.outfile, 'wb')
         current_node = self.huffman_tree_root
+        total_bytes = sum(self.frequency_table)
+        bytes_decoded = 0
 
-        #OrderedTraversal gennemføres nu på træet
-        while True:
+        for i in range(256):
+            bit_reader.readint32bits()
+        
+        while bytes_decoded < total_bytes:
             bit = bit_reader.readbit()
 
             if bit is None:
                 break
 
-            ##Bestem om vi skal til venstre eller højre i træet
             if bit == 0:
                 current_node = current_node.left
             else:
                 current_node = current_node.right
-
-            #Checker hvis current_node er None:
-            if current_node is None:
-                raise ValueError("Invalid encoded data or huffman tree construction")
             
-            ##hvis vi har nået et leaf, så gemmer vi current_node
+            if current_node is None:
+                raise ValueError("Invalid encoded data or huffman tree")
+            
             if current_node.left is None and current_node.right is None:
-                #skriver current til output fil
-                bit_writer.writebit(1)
-                bit_writer.writeint32bits(current_node.symbol)
-                # genstarter og kør klar til næste iteration
+                # Skriver en hel byte
+                output_file.write(bytes([current_node.symbol]))
+                bytes_decoded += 1
                 current_node = self.huffman_tree_root
-        
-        bit_writer.close()
+            
+        output_file.close()
+        bit_reader.close()
 
     def do_decode(self):
         self.scan_frequency_table()

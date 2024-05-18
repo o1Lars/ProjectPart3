@@ -21,7 +21,7 @@ Lars Mogensen
 lmoge23@student.sdu.dk
 
 """
-
+import sys
 from bitIO import BitWriter
 import HuffmanTree
 
@@ -64,8 +64,8 @@ class SymbolHolder:
         self.symbol = symbol
 
 
-if __name__ == 'main':
-    input_file = 'placeHolder'  # TODO
-    output_file = 'placeHolder'  # TODO
+if __name__ == '__main__':
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
     encoder = EncodeFile(input_file, output_file)
     encoder.write_frequency_table()
