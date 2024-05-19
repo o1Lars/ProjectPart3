@@ -1,5 +1,5 @@
 """
-This module provides the HuffmanTreeCreator module. Module is creates a Huffman Tree from a frequency table.
+This module provides the HuffmanTreeCreator module. Module creates a Huffman Tree from a frequency table.
 It gives the following methods:
 -
 -
@@ -24,12 +24,11 @@ Lars Mogensen
 lmoge23@student.sdu.dk
 
 """
-import random
 from Element import Element
 import PQHeap
 
 
-class HuffmanTreeCreator():
+class HuffmanTreeCreator:
     """Class creates an instance of a Huffman tree from a list of frequencies. Class supports encoding and decoding
     Huffman codes from the list of frequencies."""
 
@@ -39,12 +38,12 @@ class HuffmanTreeCreator():
             a list of frequencies, where the index of the list is a wholenumber representing a byte and the element
             its frequency.
         """
-        self.frequency_table = self._convert_int_to_Elements(frequency_table)   # convert frequencies to elements
-        PQHeap.build_min_heap(self.frequency_table)                             # Rearrange into min priority queue
-        self.huffman_tree = self._huffman_coding(self.frequency_table)          # create Huffman tree from table
-        self.huffman_codes = self._create_huffman_codes_list()                  # Store code mapping in list
+        self.frequency_table = self._convert_int_to_elements(frequency_table)  # convert frequencies to elements
+        PQHeap.build_min_heap(self.frequency_table)  # Rearrange into min priority queue
+        self.huffman_tree = self._huffman_coding(self.frequency_table)  # create Huffman tree from table
+        self.huffman_codes = self._create_huffman_codes_list()  # Store code mapping in list
 
-    def _convert_int_to_Elements(self, f_table: list) -> list:
+    def _convert_int_to_elements(self, f_table: list) -> list:
         """Return a list of Elements created from a list of frequencies."""
 
         elements = []
@@ -58,6 +57,7 @@ class HuffmanTreeCreator():
         n = len(C)
         Q = C
 
+        # Until one node left, grab 2 smallest elements in PQ and join together in tree
         for i in range(n - 1):
             z = Element(key=None, data=TreeNode())  # allocate new node
             x = PQHeap.extractMin(Q)
@@ -77,14 +77,15 @@ class HuffmanTreeCreator():
         huffman_tree = self.huffman_tree
         bin_code = ''
 
-        self._orderedTraversal(huffman_tree, codes_list, bin_code)
+        self._ordered_traversal(huffman_tree, codes_list, bin_code)
 
         return codes_list
 
-
-    def _orderedTraversal(self, binary_tree, value_list, bite_code):
+    def _ordered_traversal(self, binary_tree, value_list, bite_code):
         """Recursively traverse a binary tree and append value to the list"""
+
         counter = 0
+
         if binary_tree is not None:
             counter += 1
             # If the node is a leaf (both left and right children are None),
@@ -93,9 +94,10 @@ class HuffmanTreeCreator():
                 value_list[binary_tree.data.root] = bite_code
                 return
             else:
-                # Otherwise, continue traversing left and right
-                self._orderedTraversal(binary_tree.data.left, value_list, bite_code + '0')
-                self._orderedTraversal(binary_tree.data.right, value_list, bite_code + '1')
+                # Otherwise, continue traversing left/right
+                self._ordered_traversal(binary_tree.data.left, value_list, bite_code + '0')
+                self._ordered_traversal(binary_tree.data.right, value_list, bite_code + '1')
+
 
 class TreeNode:
     """Creates a node/subtree with a key and the left and right child of the node"""
@@ -110,19 +112,3 @@ class TreeNode:
         self.root = root
         self.left = left_child
         self.right = right_child
-
-def count_sort(f):
-    """Scans a file and creates a  frequency table of individual bytes from the file (0-255)"""
-
-    frequency_table = [0] * 256
-
-    with open(f, 'rb') as file:
-        # Read file byte by byte
-        byte = file.read(1)
-        while byte:
-            frequency_table[byte[0]] += 1   # Increase frequency of byte +1
-            byte = file.read(1)      # Read next byte
-
-    return frequency_table
-
-
