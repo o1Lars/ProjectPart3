@@ -21,9 +21,11 @@ Lars Mogensen
 lmoge23@student.sdu.dk
 
 """
-import sys
+import bitIO
 from bitIO import BitWriter
 import HuffmanTree
+import sys
+import os
 
 
 class EncodeFile:
@@ -31,30 +33,36 @@ class EncodeFile:
     First, the file is read once and each byte frequency is stored in a 256 element frequency table. Then the instance
     utilizes the frequency table to create an Huffman tree instance, which is used to encode the file with Huffman
     codes. Lastly, the Huffman codes a used to write the new coded bit representation to the output file."""
+
     def __init__(self, infile, outfile):
-        self.infile = infile
-        self.outfile = outfile
-        self.frequency_table = self.count_sort()
-        self.huffman_tree = HuffmanTree.HuffmanTreeCreator(self.frequency_table)    # Instance of Huffman Tree
-        self.huffman_codes_list = self.huffman_tree.huffman_codes                   # List of bytes Huffman coded
-
-        # Write frequency table and new huffyfied bytes to outfile
-        self.write_frequency_table()
-        self.write_huffyfied_bytes()
-
         """
         infile: Path object
             The absolute path to a file object
         outfile: Path object
             The absolute path to a file object
         """
+        # store paths
+        self.script_path = os.path.abspath(os.path.dirname(__file__))
+        self.infile_path = rf'{self.script_path}\{infile}'
+        self.outfile_path = rf'{self.script_path}\{outfile}'
+
+        # Count frequencies, create Huffman Tree and codes list
+        self.frequency_table = self.count_sort()
+        self.huffman_tree = HuffmanTree.HuffmanTreeCreator(self.frequency_table)  # Instance of Huffman Tree
+        self.huffman_codes_list = self.huffman_tree.huffman_codes  # List of bytes Huffman coded
+
+        # Write frequency table and new huffyfied bytes to outfile
+        self.write_frequency_table()
+        self.write_huffyfied_bytes()
 
     def count_sort(self):
         """Scans a file and return a frequency table of individual bytes from the file (0-255)"""
 
+        infile = self.infile_path
+
         frequency_table = [0] * 256
 
-        with open(self.infile, 'rb') as file:
+        with open(infile, 'rb') as file:
             # Read file byte by byte and +1 frequency of corresponding byte
             byte = file.read(1)
             while byte:
@@ -65,7 +73,10 @@ class EncodeFile:
 
     def write_frequency_table(self):
         """Writes frequency table to output file."""
-        with open(self.outfile, 'wb') as f:
+
+        outfile = self.outfile_path
+
+        with open(outfile, 'wb') as f:
             bit_writer = BitWriter(f)
             for frequency in self.frequency_table:
                 bit_writer.writeint32bits(frequency)
@@ -74,16 +85,26 @@ class EncodeFile:
     def write_huffyfied_bytes(self):
         """Scan infile byte for byte and write corresponding Huffman coded byte to outfile."""
 
-        infile = self.infile
-        outfile = self.outfile
+        infile_path = self.infile_path
+        outfile_path = self.outfile_path
+        huff_codes = self.huffman_codes_list
 
-        # Scan in file
-        # For each byte, look up huffman code
-        # Write to outfile
-        # Add extra bytes at the end (standard format for files is 8 bits)
-        # Close output file.
-        
-        pass
+        # Open infile & out file
+        with open(infile_path, 'rb') as in_file:
+            with open(outfile_path, 'wb') as out_file:
+                # Read file byte by byte
+                byte = in_file.read(1)
+                bit_writer = BitWriter(out_file)
+
+                # Code byte as huffman code
+                while byte:
+                    huffyfied_byte = huff_codes[byte[0]]
+                    for bit in huffyfied_byte:
+                        bit = int(bit)
+                        print(bit)
+                        bit_writer.writebit(bit)
+                    byte = in_file.read(1)
+                bit_writer.close()
 
 # TODO
 # Bruger vi nedenstående class, eller skal den slettes?
@@ -92,9 +113,18 @@ class SymbolHolder:
         self.freq = single_frequency
         self.symbol = symbol
 
+# TODO
+# Slet nedenstående function. Skulle blot tjekke, at bits korrekt blev tilføjet til outfile
+def test_out():
+    file = r"C:\Users\Chris\Documents\ProjectPart3\test_out.txt"
+
+    with open(file, 'rb') as f:
+        bit_reader = bitIO.BitReader(f)
+        for i in range(100):
+            print(bit_reader.readbit())
+
 
 if __name__ == '__main__':
     input_file = sys.argv[1]
     output_file = sys.argv[2]
     encoder = EncodeFile(input_file, output_file)
-    encoder.write_frequency_table()
