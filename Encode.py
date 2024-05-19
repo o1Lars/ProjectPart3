@@ -38,6 +38,10 @@ class EncodeFile:
         self.huffman_tree = HuffmanTree.HuffmanTreeCreator(self.frequency_table)    # Instance of Huffman Tree
         self.huffman_codes_list = self.huffman_tree.huffman_codes                   # List of bytes Huffman coded
 
+        # Write frequency table and new huffyfied bytes to outfile
+        self.write_frequency_table()
+        self.write_huffyfied_bytes()
+
         """
         infile: Path object
             The absolute path to a file object
@@ -66,6 +70,20 @@ class EncodeFile:
             for frequency in self.frequency_table:
                 bit_writer.writeint32bits(frequency)
             bit_writer.close()
+
+    def write_huffyfied_bytes(self):
+        """Scan infile byte for byte and write corresponding Huffman coded byte to outfile."""
+
+        infile = self.infile
+        outfile = self.outfile
+
+        # Scan in file
+        # For each byte, look up huffman code
+        # Write to outfile
+        # Add extra bytes at the end (standard format for files is 8 bits)
+        # Close output file.
+        
+        pass
 
 # TODO
 # Bruger vi nedenstående class, eller skal den slettes?
