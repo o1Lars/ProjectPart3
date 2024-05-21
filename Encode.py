@@ -52,8 +52,11 @@ class EncodeFile:
         self.huffman_codes_list = self.huffman_tree.huffman_codes  # List of bytes Huffman coded
 
         # Write frequency table and new huffyfied bytes to outfile
-        #self.write_frequency_table()
         self.write_huffyfied_bytes()
+
+        # Test decoding directly in encoding
+        # TODO Remember del
+        self.decode_encoded_data()
 
     def count_sort(self):
         """Scans a file and return a frequency table of individual bytes from the file (0-255)"""
@@ -92,28 +95,78 @@ class EncodeFile:
                     print(frequency)
                     bit_writer.writeint32bits(frequency)
 
+
                 # Code byte as huffman code
                 while byte:
+                    # TODO del
+                    # bit list
+                    bit_list = []
                     huffyfied_byte = huff_codes[byte[0]]
                     for bit in huffyfied_byte:
                         bit = int(bit)
-                        print(bit)
+                        bit_list.append(bit)
                         bit_writer.writebit(bit)
+                    print(f"byte: {byte[0]} | huffman bits: {bit_list} | huff code: {huff_codes[byte[0]]}") # TODO DEL
                     byte = in_file.read(1)
                 bit_writer.close()
 
+    def decode_encoded_data(self):
+        """Scan infile and decode the files huffyfied codes and write bytes to outfile"""
 
-# TODO
-# Bruger vi nedenstående class, eller skal den slettes?
-class SymbolHolder:
-    def __init__(self, symbol=None, single_frequency=0):
-        self.freq = single_frequency
-        self.symbol = symbol
+        infile_path = self.outfile_path
+        outfile_path = r"C:\Users\Lars\Documents\Data Science\2 Semester\10 ECTS Algoritmer og Datastrukturer\ProjektDel3\wojak.jfif"
+        byte_count = 11
+        huff_tree = self.huffman_tree.huffman_tree
+
+        # Open infile
+        with open(infile_path, 'rb') as in_file:
+            print('file opened')
+            bit_reader = BitReader(in_file)
+
+            # Skip first 256 bytes (frequencies)
+            for _ in range(256):
+                bit_reader.readint32bits()
+
+            # Open outfile
+            with open(outfile_path, 'wb') as out_file:
+                print('outfile opened')
+                # write to file each byte
+                for _ in range(byte_count):
+                    decode_bits = True
+                    current_node = huff_tree
+                    bit_list = [] # TODO slet, kun til test
+
+                    while decode_bits:
+
+                        bit = bit_reader.readbit()
+                        #bit_list.append(bit) # TODO Slet kun til test
+                        # Traverse tree left/right until leaf is found
+                        if bit is None:
+                            break
+                        bit_list.append(bit) # TODO Slet kun til test
+
+
+                        # TODO check if needed below
+                        """if current_node is None:
+                            raise ValueError("Invalid encoded data or huffman tree")"""
+
+
+                        if bit == 0:
+                            current_node = current_node.data.left
+                        else:
+                            current_node = current_node.data.right
+
+                        if current_node.data.left is None and current_node.data.right is None:
+                            print(f"Writing symbol: {current_node.data.root} | {bytes([current_node.data.root])} | bit list: {bit_list}")
+                            # Write the decoded byte to output file
+                            out_file.write(bytes([current_node.data.root]))
+                            decode_bits = False
+
 
 # TODO
 # Slet nedenstående function. Skulle blot tjekke, at bits korrekt blev tilføjet til outfile
 def test_out():
-    file = r"C:\Users\Chris\Documents\ProjectPart3\test_out.txt"
+    file = r"C:\Users\Lars\Documents\Data Science\2 Semester\10 ECTS Algoritmer og Datastrukturer\ProjektDel3\wojak.jfif"
 
     with open(file, 'rb') as f:
         bit_reader = bitIO.BitReader(f)
