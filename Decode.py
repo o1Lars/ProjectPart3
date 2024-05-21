@@ -116,7 +116,7 @@ class DecodeFile():
 
 
                         if current_node.data.left is None and current_node.data.right is None:
-                            print(f"Writing symbol: {current_node.data.root}")
+                            print(f"Writing symbol: {current_node.data.root} | {bytes([current_node.data.root])}")
                             # Skriver en hel byte
                             out_file.write(bytes([current_node.data.root]))
                             decode_bits = False
