@@ -20,130 +20,114 @@ Lars Mogensen
 lmoge23@student.sdu.dk
 
 """
-import sys
-from PQHeap import insert, extractMin
+
 from bitIO import BitReader, BitWriter
-from DictBinTree import DictBinTree
-from HuffmanTree import HuffmanTreeCreator
+import HuffmanTree
+import sys
+import os
 
-class HuffmanNode:
-    def __init__(self, symbol=None, frequency=0):
-        self.symbol = symbol
-        self.frequency = frequency
-        self.left = None
-        self.right = None
 
-class Decode():
+class DecodeFile():
+    """Creates an instance of the class DecodeFile. Works by creating an object, that reads a Huffman decoded file.
+    First, it is assumed the first 256 bytes of the file is the frequency table that is needed to decode the Huff codes.
+    Second, a Huffman tree binary tree object is created from the frequency table. Lastly, the rest of the file is read
+    bit by bit and decoded from huffman codes to bytes and written to the outfile object."""
+
     def __init__(self, infile, outfile):
-        self.infile = infile
-        self.outfile = outfile
+        """
+        infile: Path object
+            The absolute path to a file object
+        outfile: Path object
+            The absolute path to a file object
+        """
+        # store paths
+        self.script_path = os.path.abspath(os.path.dirname(__file__))
+        self.infile_path = rf'{self.script_path}\{infile}'
+        self.outfile_path = rf'{self.script_path}\{outfile}'
+
+        self.infile_byte_count = 0
         self.frequency_table = []
-        self.huffman_tree_root = None
-        self.decoded_data = ""
-        self.huffman_tree_creator = None
-    
-    def scan_frequency_table(self):
-        with open(self.infile, 'rb') as f:
-            bit_reader = BitReader(f)
+        self._scan_frequency_table()  # Get frequency table and byte count from infile
 
-            for i in range(256):
-                frequency = bit_reader.readint32bits()
-                self.frequency_table.append(frequency)
-            bit_reader.close()
+        # Recreate Huffman tree, comparable to the one used to encode the file
+        self.huffyfied_table = HuffmanTree.HuffmanTreeCreator(self.frequency_table)
+        self.huffman_tree = self.huffyfied_table.huffman_tree  # Instance of Huffman Tre
 
-            for i, freq in enumerate(self.frequency_table):
-                print(f"Byte {i}: Frequency {freq}")
-    
-    def construct_huffman_tree(self):
-        self.huffman_tree_creator = HuffmanTreeCreator(self.frequency_table)
-        # PriorityQ = []
-
-        # #Her laver vi leaf nodes som vi sætter inde i PriorityQ
-        # for symbol, frequency in enumerate(self.frequency_table):
-        #     if frequency > 0:
-        #         node = HuffmanNode(symbol, frequency)
-        #         insert(PriorityQ, node)
-
-        # #Nu bygger vi huffman træet
-        # while len(PriorityQ) > 1:
-        #     left_child = extractMin(PriorityQ)
-        #     right_child = extractMin(PriorityQ)
-        #     #Laver parent node ## ER I TVIVL OM DEN SKAL HAVE SYMBOL MED SIG??? se python kode her: https://www.geeksforgeeks.org/huffman-decoding/
-        #     parent_frequency = left_child.frequency + right_child.frequency
-        #     parent_node = HuffmanNode(None, parent_frequency)
-        #     parent_node.left = left_child
-        #     parent_node.right = right_child
-
-        #     #Indsætter parent node tilbage i PriorityQ
-
-        #     insert(PriorityQ, parent_node)
-        
-        # #Laver rod til huffman træet med den sidste værdi
-        # self.huffman_tree_root = PriorityQ[0]
-
-    def decode_encoded_data(self):
-        bit_reader = BitReader(open(self.infile, 'rb'))
-        output_file = open(self.outfile, 'wb')
-        root_node = self.huffman_tree_creator.huffman_tree.data
-        current_node = root_node
-        total_bytes = sum(self.frequency_table)
-        bytes_decoded = 0
-
-        for i in range(256):
-            bit_reader.readint32bits()
-        
-        while bytes_decoded < total_bytes:
-            bit = bit_reader.readbit()
-
-            if bit is None:
-                break
-
-            if bit == 0:
-                current_node = current_node.left.data
-            else:
-                current_node = current_node.right.data
-            
-            if current_node is None:
-                raise ValueError("Invalid encoded data or huffman tree")
-            
-            print(f"Read bit: {bit}, traversing to node: {current_node.root if current_node else 'None'}")
-            
-            if current_node.left is None and current_node.right is None:
-                print(f"Writing symbol: {current_node.root}")
-                # Skriver en hel byte
-                output_file.write(bytes([current_node.root]))
-                bytes_decoded += 1
-                current_node = self.huffman_tree_creator.huffman_tree.data
-            
-        output_file.close()
-        bit_reader.close()
-
-    def do_decode(self):
-        self.scan_frequency_table()
-        self.construct_huffman_tree()
+        # Decode rest of file and read original bytes to outfile
         self.decode_encoded_data()
 
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python Decode.py <input_file> <output_file>")
-        sys.exit(1)
+    def _scan_frequency_table(self):
+        """Scan input file and get frequency table and byte count of infile"""
 
+        infile = self.infile_path
+        frequency_table = self.frequency_table
+
+        with open(infile, 'rb') as f:
+            bit_reader = BitReader(f)
+
+            # Get each frequency and store byte length
+            for i in range(256):
+                frequency = bit_reader.readint32bits()
+                frequency_table.append(frequency)
+                self.infile_byte_count += frequency
+            bit_reader.close()
+
+            # TODO DEL
+            """for i, freq in enumerate(frequency_table):
+                print(f"Byte {i}: Frequency {freq}")"""
+
+    def decode_encoded_data(self):
+        """Scan infile and decode the files huffyfied codes and write bytes to outfile"""
+
+        infile_path = self.infile_path
+        outfile_path = self.outfile_path
+        byte_count = self.infile_byte_count
+        huff_tree = self.huffman_tree
+        print('bytes', byte_count)
+        # Open infile
+        with open(infile_path, 'rb') as in_file:
+            print('file opened')
+            bit_reader = BitReader(in_file)
+
+            # Skip first 256 bytes (frequencies)
+            for _ in range(256):
+                bit_reader.readint32bits()
+
+            # Open outfile
+            with open(outfile_path, 'wb') as out_file:
+                print('outfile opened')
+                # write to file each byte
+                for _ in range(byte_count):
+                    decode_bits = True
+                    current_node = huff_tree
+                    print(current_node)
+                    print('test')
+                    while decode_bits:
+                        bit = bit_reader.readbit()
+
+                        # Traverse tree left/right until leaf is found
+                        if bit is None:
+                            break
+
+
+                        # TODO check if needed below
+                        """if current_node is None:
+                            raise ValueError("Invalid encoded data or huffman tree")"""
+
+
+                        if current_node.data.left is None and current_node.data.right is None:
+                            print(f"Writing symbol: {current_node.data.root}")
+                            # Skriver en hel byte
+                            out_file.write(bytes([current_node.data.root]))
+                            decode_bits = False
+                        elif bit == 0:
+                            current_node = current_node.data.left
+                        else:
+                            current_node = current_node.data.right
+
+
+if __name__ == '__main__':
     input_file = sys.argv[1]
     output_file = sys.argv[2]
-    
-    decoder = Decode(input_file, output_file)
-    decoder.do_decode()
-
-        
-
-
-# Create class for decoding
-# readint32bits()
-# create Huffmanstree as in encode module
-# Get sum of numbers from frequency table
-# Read file bit by bit
-    # Use sum of frequency table to stop program (due to filler bits at the end)
-# readBit(1)
-# traverse Huffman tree while reading bits
-    # when leaf is reached, write byte
-    # write(bytes([n]))
+    encoder = DecodeFile(input_file, output_file)
+    print(encoder.infile_byte_count)

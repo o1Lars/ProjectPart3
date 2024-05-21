@@ -22,7 +22,7 @@ lmoge23@student.sdu.dk
 
 """
 import bitIO
-from bitIO import BitWriter
+from bitIO import BitWriter, BitReader # TODO To forskellige bitIO imports, fix import og i koden
 import HuffmanTree
 import sys
 import os
@@ -52,7 +52,7 @@ class EncodeFile:
         self.huffman_codes_list = self.huffman_tree.huffman_codes  # List of bytes Huffman coded
 
         # Write frequency table and new huffyfied bytes to outfile
-        self.write_frequency_table()
+        #self.write_frequency_table()
         self.write_huffyfied_bytes()
 
     def count_sort(self):
@@ -71,30 +71,26 @@ class EncodeFile:
 
         return frequency_table
 
-    def write_frequency_table(self):
-        """Writes frequency table to output file."""
-
-        outfile = self.outfile_path
-
-        with open(outfile, 'wb') as f:
-            bit_writer = BitWriter(f)
-            for frequency in self.frequency_table:
-                bit_writer.writeint32bits(frequency)
-            bit_writer.close()
-
     def write_huffyfied_bytes(self):
         """Scan infile byte for byte and write corresponding Huffman coded byte to outfile."""
 
         infile_path = self.infile_path
         outfile_path = self.outfile_path
         huff_codes = self.huffman_codes_list
+        frequency_table = self.frequency_table
 
         # Open infile & out file
         with open(infile_path, 'rb') as in_file:
             with open(outfile_path, 'wb') as out_file:
+
                 # Read file byte by byte
                 byte = in_file.read(1)
                 bit_writer = BitWriter(out_file)
+
+                # Write frequency table to outfile
+                for frequency in frequency_table:
+                    print(frequency)
+                    bit_writer.writeint32bits(frequency)
 
                 # Code byte as huffman code
                 while byte:
@@ -105,6 +101,7 @@ class EncodeFile:
                         bit_writer.writebit(bit)
                     byte = in_file.read(1)
                 bit_writer.close()
+
 
 # TODO
 # Bruger vi nedenstående class, eller skal den slettes?
@@ -128,3 +125,4 @@ if __name__ == '__main__':
     input_file = sys.argv[1]
     output_file = sys.argv[2]
     encoder = EncodeFile(input_file, output_file)
+    print(encoder.frequency_table)

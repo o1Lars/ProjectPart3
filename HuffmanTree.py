@@ -77,11 +77,11 @@ class HuffmanTreeCreator:
         huffman_tree = self.huffman_tree
         bin_code = ''
 
-        self._ordered_traversal(huffman_tree, codes_list, bin_code)
+        self._ordered_traversal_encode(huffman_tree, codes_list, bin_code)
 
         return codes_list
 
-    def _ordered_traversal(self, binary_tree, value_list, bite_code):
+    def _ordered_traversal_encode(self, binary_tree, value_list, bite_code):
         """Recursively traverse a binary tree and append value to the list"""
 
         counter = 0
@@ -95,8 +95,20 @@ class HuffmanTreeCreator:
                 return
             else:
                 # Otherwise, continue traversing left/right
-                self._ordered_traversal(binary_tree.data.left, value_list, bite_code + '0')
-                self._ordered_traversal(binary_tree.data.right, value_list, bite_code + '1')
+                self._ordered_traversal_encode(binary_tree.data.left, value_list, bite_code + '0')
+                self._ordered_traversal_encode(binary_tree.data.right, value_list, bite_code + '1')
+
+    def _ordered_traversal_decode(self, binary_tree):
+        """Recursively traverse a binary tree until leaf is reach. Then return the root of the leaf (the coded val)"""
+
+        if binary_tree is not None:
+            # If the node is a leaf (both left and right children are None),
+            if binary_tree.data.left is None and binary_tree.data.right is None:
+                return binary_tree.data.root
+            else:
+                # Otherwise, continue traversing left/right
+                self._ordered_traversal_encode(binary_tree.data.left)
+                self._ordered_traversal_encode(binary_tree.data.right)
 
 
 class TreeNode:
